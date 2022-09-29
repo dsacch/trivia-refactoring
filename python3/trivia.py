@@ -18,7 +18,7 @@ class Game:
         for i in range(50):
             self.pop_questions.append(self.create_pop_question(i))
             self.science_questions.append(self.create_science_question(i))
-            self.sports_questions.append(self.create_rock_question(i))
+            self.sports_questions.append(self.create_sports_question(i))
             self.rock_questions.append(self.create_rock_question(i))
 
     def create_pop_question(self, index):
@@ -55,9 +55,6 @@ class Game:
                 Output.write("%s is getting out of the penalty box" % self.players[self.current_player]+'\n')
                 self.update_player_position(roll)
 
-                Output.write(self.players[self.current_player] + \
-                            '\'s new location is ' + \
-                            str(self.places[self.current_player])+'\n')
                 Output.write("The category is %s" % self._current_category+'\n')
                 self._ask_question()
             else:
@@ -66,9 +63,6 @@ class Game:
         else:
             self.update_player_position(roll)
 
-            Output.write(self.players[self.current_player] + \
-                        '\'s new location is ' + \
-                        str(self.places[self.current_player])+'\n')
             Output.write("The category is %s" % self._current_category+'\n')
             self._ask_question()
 
@@ -76,15 +70,19 @@ class Game:
         self.places[self.current_player] = self.places[self.current_player] + roll
         if self.places[self.current_player] > 11:
             self.places[self.current_player] = self.places[self.current_player] - 12
+        
+        Output.write(self.players[self.current_player] + \
+                        '\'s new location is ' + \
+                        str(self.places[self.current_player])+'\n')
 
-    def _ask_question(self): # should be elif
+    def _ask_question(self):
         if self._current_category == 'Pop': Output.write(self.pop_questions.pop(0)+'\n')
-        if self._current_category == 'Science': Output.write(self.science_questions.pop(0)+'\n')
-        if self._current_category == 'Sports': Output.write(self.sports_questions.pop(0)+'\n')
-        if self._current_category == 'Rock': Output.write(self.rock_questions.pop(0)+'\n')
+        elif self._current_category == 'Science': Output.write(self.science_questions.pop(0)+'\n')
+        elif self._current_category == 'Sports': Output.write(self.sports_questions.pop(0)+'\n')
+        elif self._current_category == 'Rock': Output.write(self.rock_questions.pop(0)+'\n')
 
     @property
-    def _current_category(self): # combine if statements
+    def _current_category(self):
         if self.places[self.current_player] == 0: return 'Pop'
         if self.places[self.current_player] == 4: return 'Pop'
         if self.places[self.current_player] == 8: return 'Pop'
@@ -100,20 +98,14 @@ class Game:
         if self.in_penalty_box[self.current_player]:
             if self.is_getting_out_of_penalty_box:
                 Output.write('Answer was correct!!!!'+'\n')
-                self.purses[self.current_player] += 1
-                Output.write(self.players[self.current_player] + \
-                    ' now has ' + \
-                    str(self.purses[self.current_player]) + \
-                    ' Gold Coins.'+'\n')
+                self.update_gold()
 
                 winner = self._did_player_win()
-                self.current_player += 1
-                if self.current_player == len(self.players): self.current_player = 0
+                self.next_player()
 
                 return winner
             else:
-                self.current_player += 1
-                if self.current_player == len(self.players): self.current_player = 0
+                self.next_player()
                 return True
 
 
@@ -121,17 +113,24 @@ class Game:
         else:
 
             Output.write("Answer was corrent!!!!"+'\n')
-            self.purses[self.current_player] += 1
-            Output.write(self.players[self.current_player] + \
-                ' now has ' + \
-                str(self.purses[self.current_player]) + \
-                ' Gold Coins.'+'\n')
+            self.update_gold()
 
             winner = self._did_player_win()
             self.current_player += 1
             if self.current_player == len(self.players): self.current_player = 0
 
             return winner
+
+    def update_gold(self):
+        self.purses[self.current_player] += 1
+        Output.write(self.players[self.current_player] + \
+                ' now has ' + \
+                str(self.purses[self.current_player]) + \
+                ' Gold Coins.'+'\n')
+
+    def next_player(self):
+        self.current_player += 1
+        if self.current_player == len(self.players): self.current_player = 0
 
     def wrong_answer(self):
         Output.write('Question was incorrectly answered'+'\n')
@@ -145,6 +144,7 @@ class Game:
     def _did_player_win(self):
         return not (self.purses[self.current_player] == 6)
 
+import os
 import random
 
 if __name__ == '__main__':
@@ -173,3 +173,4 @@ if __name__ == '__main__':
         if not not_a_winner: break
 
     Output.close()
+    os.system('python /Users/domenic/Desktop/softwaredev/githubstuff/trivia-refactoring/python3/test.py')
