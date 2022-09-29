@@ -16,31 +16,33 @@ class Game:
         self.is_getting_out_of_penalty_box = False
 
         for i in range(50):
-            self.pop_questions.append("Pop Question %s" % i)
-            self.science_questions.append("Science Question %s" % i)
-            self.sports_questions.append("Sports Question %s" % i)
+            self.pop_questions.append(self.create_pop_question(i))
+            self.science_questions.append(self.create_science_question(i))
+            self.sports_questions.append(self.create_rock_question(i))
             self.rock_questions.append(self.create_rock_question(i))
+
+    def create_pop_question(self, index):
+        return "Pop Question %s" % index
+
+    def create_science_question(self, index):
+        return "Science Question %s" % index
+
+    def create_sports_question(self, index):
+        return "Sports Question %s" % index
 
     def create_rock_question(self, index):
         return "Rock Question %s" % index
 
-    def is_playable(self):
-        return self.how_many_players >= 2
-
     def add(self, player_name):
         self.players.append(player_name)
-        self.places[self.how_many_players] = 0
-        self.purses[self.how_many_players] = 0
-        self.in_penalty_box[self.how_many_players] = False
+        self.places[len(self.players)] = 0
+        self.purses[len(self.players)] = 0
+        self.in_penalty_box[len(self.players)] = False
 
         Output.write(player_name + " was added"+'\n')
         Output.write("They are player number %s" % len(self.players)+'\n')
 
         return True
-
-    @property
-    def how_many_players(self):
-        return len(self.players)
 
     def roll(self, roll):
         Output.write("%s is the current player" % self.players[self.current_player]+'\n')
@@ -51,9 +53,7 @@ class Game:
                 self.is_getting_out_of_penalty_box = True
 
                 Output.write("%s is getting out of the penalty box" % self.players[self.current_player]+'\n')
-                self.places[self.current_player] = self.places[self.current_player] + roll
-                if self.places[self.current_player] > 11:
-                    self.places[self.current_player] = self.places[self.current_player] - 12
+                self.update_player_position(roll)
 
                 Output.write(self.players[self.current_player] + \
                             '\'s new location is ' + \
@@ -64,9 +64,7 @@ class Game:
                 Output.write("%s is not getting out of the penalty box" % self.players[self.current_player]+'\n')
                 self.is_getting_out_of_penalty_box = False
         else:
-            self.places[self.current_player] = self.places[self.current_player] + roll
-            if self.places[self.current_player] > 11:
-                self.places[self.current_player] = self.places[self.current_player] - 12
+            self.update_player_position(roll)
 
             Output.write(self.players[self.current_player] + \
                         '\'s new location is ' + \
@@ -74,14 +72,19 @@ class Game:
             Output.write("The category is %s" % self._current_category+'\n')
             self._ask_question()
 
-    def _ask_question(self):
+    def update_player_position(self, roll):
+        self.places[self.current_player] = self.places[self.current_player] + roll
+        if self.places[self.current_player] > 11:
+            self.places[self.current_player] = self.places[self.current_player] - 12
+
+    def _ask_question(self): # should be elif
         if self._current_category == 'Pop': Output.write(self.pop_questions.pop(0)+'\n')
         if self._current_category == 'Science': Output.write(self.science_questions.pop(0)+'\n')
         if self._current_category == 'Sports': Output.write(self.sports_questions.pop(0)+'\n')
         if self._current_category == 'Rock': Output.write(self.rock_questions.pop(0)+'\n')
 
     @property
-    def _current_category(self):
+    def _current_category(self): # combine if statements
         if self.places[self.current_player] == 0: return 'Pop'
         if self.places[self.current_player] == 4: return 'Pop'
         if self.places[self.current_player] == 8: return 'Pop'
@@ -143,7 +146,6 @@ class Game:
         return not (self.purses[self.current_player] == 6)
 
 import random
-from random import randrange
 
 if __name__ == '__main__':
     Output = open('/Users/domenic/Desktop/softwaredev/githubstuff/trivia-refactoring/python3/Output.md', 'w')
